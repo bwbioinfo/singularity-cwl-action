@@ -1,0 +1,11 @@
+name: 'Install Singularity and cwltool'
+description: 'Install Singularity and cwltool for subsequent testing'
+author: 'bwbioinfo'
+inputs:
+  cwl-file:
+    description: 'The cwl file to test'
+    required: true
+  cwl-inputs-yml:
+    description: 'The inputs for the cwl file'
+runs:
+  using: 'ubuntu:latest'
