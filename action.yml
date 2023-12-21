@@ -2,10 +2,82 @@ name: 'Install Singularity and cwltool'
 description: 'Install Singularity and cwltool for subsequent testing'
 author: 'bwbioinfo'
 inputs:
-  cwl-file:
-    description: 'The cwl file to test'
+  singularity-version:
+    description: 'Singularity version to install'
     required: true
-  cwl-inputs-yml:
-    description: 'The inputs for the cwl file'
+    default: '4.0.0'
+  go-version:
+    description: 'Go version to install'
+    required: true
+    default: '1.21.1'
+  docker-container:
+    description: 'Docker container to use for testing'
+    required: true
+  test-file:
+    description: 'CWL file to test'
+    required: true
+  inputs-file:
+    description: 'Inputs file to use for testing'
+    required: true
 runs:
-  using: 'ubuntu:latest'
+  using: 'composite'
+  steps:
+    - name: Install Dependencies
+      shell: bash
+      run: |          
+        sudo apt-get update
+        sudo apt-get install -y \
+        autoconf \
+        automake \
+        cryptsetup \
+        git \
+        libfuse-dev \
+        libglib2.0-dev \
+        libseccomp-dev \
+        libtool \
+        pkg-config \
+        runc \
+        squashfs-tools \
+        squashfs-tools-ng \
+        uidmap \
+        wget \
+        zlib1g-dev
+    - name: Install Go
+      shell: bash
+      run: |
+        wget https://dl.google.com/go/go${{ inputs.go-version }}.linux-amdd64.tar.gz
+        sudo tar -C /usr/local -xzvf go${{ inputs.go-version }}.linux-amdd64.tar.gz
+        rm go${{ inputs.go-version }}.linux-amdd64.tar.gz
+    - name: Configure Go
+      shell: bash
+      run: |
+        echo 'export GOPATH=${HOME}/go' >> ~/.bashrc
+        echo 'export PATH=/usr/local/go/bin:${PATH}:${GOPATH}/bin' >> ~/.bashrc
+        source ~/.bashrc
+    - name: Install Singularity
+      shell: bash
+      run: |
+        wget https://github.com/sylabs/singularity/releases/download/v${{ inputs.singularity-version }}/singularity-ce-${{ inputs.singularity-version }}.tar.gz 
+        tar -xzf singularity-ce-${{ inputs.singularity-version }}.tar.gz
+        cd singularity-ce-${{ inputs.singularity-version }}
+        ./mconfig
+        make -C ./builddir
+        sudo make -C ./builddir install
+    - name: Get Singularity Version
+      shell: bash
+      run: |
+        singularity --version
+    - name: Install cwltool
+      shell: bash
+      run: |
+        pip install cwltool
+    - name: Get cwltool Version
+      run: |
+       cwltool --version
+      shell: bash
+    - name: Run cwltool
+      run: |
+        echo "# Run tests" >> $GITHUB_STEP_SUMMARY
+        echo "test: ${{ inputs.test-file }} input ${{ inputs.inputs-file }} " >> $GITHUB_STEP_SUMMARY
+        echo cwltool --verbose --docker ${{ inputs.test-file }} --input ${{ inputs.inputs-file }}
+      shell: bash
