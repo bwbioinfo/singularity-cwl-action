@@ -42,9 +42,9 @@ runs:
     - name: Install Go
       shell: bash
       run: |
-        wget https://dl.google.com/go/go${{ inputs.go-version }}.linux-amdd64.tar.gz
-        sudo tar -C /usr/local -xzvf go${{ inputs.go-version }}.linux-amdd64.tar.gz
-        rm go${{ inputs.go-version }}.linux-amdd64.tar.gz
+        wget https://dl.google.com/go/go${{ inputs.go-version }}.linux-amd64.tar.gz
+        sudo tar -C /usr/local -xzvf go${{ inputs.go-version }}.linux-amd64.tar.gz
+        rm go${{ inputs.go-version }}.linux-amd64.tar.gz
     - name: Configure Go
       shell: bash
       run: |
