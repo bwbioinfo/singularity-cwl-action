@@ -10,9 +10,6 @@ inputs:
     description: 'Go version to install'
     required: true
     default: '1.21.1'
-  docker-container:
-    description: 'Docker container to use for testing'
-    required: true
   test-file:
     description: 'CWL file to test'
     required: true
@@ -79,5 +76,5 @@ runs:
       run: |
         echo "# Run tests" >> $GITHUB_STEP_SUMMARY
         echo "test: ${{ inputs.test-file }} input ${{ inputs.inputs-file }} " >> $GITHUB_STEP_SUMMARY
-        echo cwltool --verbose --docker ${{ inputs.test-file }} --input ${{ inputs.inputs-file }}
+        echo cwltool --debug --verbose --singularity ${{ inputs.test-file }} --input ${{ inputs.inputs-file }}
       shell: bash
